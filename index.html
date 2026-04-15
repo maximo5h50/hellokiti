@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ff6b8a">
+  <title>🐱 Kitty Care</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div id="game-container">
+
+    <!-- ══════════════════════════════════════════
+         HEADER: BARRAS DE ESTADO
+         Las 3 necesidades se muestran aquí arriba
+    ══════════════════════════════════════════ -->
+    <header id="stats-panel">
+      <div class="game-logo">🐱 Kitty Care</div>
+
+      <div class="stats-row">
+
+        <!-- Barra de Comida -->
+        <div class="stat-item" id="stat-food">
+          <div class="stat-header">
+            <span class="stat-icon">🍎</span>
+            <span class="stat-name">Comida</span>
+            <span class="stat-value" id="food-label">75%</span>
+          </div>
+          <div class="stat-track">
+            <div class="stat-fill food-fill" id="food-bar"></div>
+          </div>
+        </div>
+
+        <!-- Barra de Sueño -->
+        <div class="stat-item" id="stat-sleep">
+          <div class="stat-header">
+            <span class="stat-icon">💤</span>
+            <span class="stat-name">Sueño</span>
+            <span class="stat-value" id="sleep-label">75%</span>
+          </div>
+          <div class="stat-track">
+            <div class="stat-fill sleep-fill" id="sleep-bar"></div>
+          </div>
+        </div>
+
+        <!-- Barra de Amor -->
+        <div class="stat-item" id="stat-love">
+          <div class="stat-header">
+            <span class="stat-icon">❤️</span>
+            <span class="stat-name">Amor</span>
+            <span class="stat-value" id="love-label">75%</span>
+          </div>
+          <div class="stat-track">
+            <div class="stat-fill love-fill" id="love-bar"></div>
+          </div>
+        </div>
+
+      </div><!-- /stats-row -->
+    </header>
+
+    <!-- ══════════════════════════════════════════
+         ÁREA PRINCIPAL
+         Contiene la mascota y el contenido de cada habitación
+    ══════════════════════════════════════════ -->
+    <main id="game-area" data-room="kitchen">
+
+      <!-- Globo de diálogo (sale cuando Kitty "habla") -->
+      <div id="speech-bubble" class="hidden" role="status" aria-live="polite">
+        <span id="speech-text"></span>
+      </div>
+
+      <!-- ── PERSONAJE ─────────────────────────────────────
+           ⚠️  CÓMO REEMPLAZAR EL PERSONAJE CON UNA IMAGEN REAL:
+           
+           1. Borra todo el <svg id="kitty-svg">...</svg>
+           2. Pon en su lugar:
+                <img id="kitty-img" src="hello-kitty.png" alt="Hello Kitty">
+           3. Agrega en styles.css:
+                #kitty-img { width:100%; height:100%; object-fit:contain; }
+           4. El archivo "hello-kitty.png" debe estar en la misma
+              carpeta que index.html, con fondo transparente (PNG).
+      ──────────────────────────────────────────────────────── -->
+      <div id="pet-container">
+        <div id="kitty-character" aria-label="Tu Kitty">
+
+          <svg id="kitty-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+
+            <!-- ── OREJAS (dibujadas antes de la cabeza para quedar detrás) -->
+            <polygon points="35,78 17,27 63,57" fill="white" stroke="#e8c4d0" stroke-width="2"/>
+            <polygon points="165,78 183,27 137,57" fill="white" stroke="#e8c4d0" stroke-width="2"/>
+            <!-- Interior de las orejas -->
+            <polygon points="38,72 25,34 58,60" fill="#ffb6c1"/>
+            <polygon points="162,72 175,34 142,60" fill="#ffb6c1"/>
+
+            <!-- ── CABEZA -->
+            <circle cx="100" cy="113" r="71" fill="white" stroke="#e8c4d0" stroke-width="2.5"/>
+
+            <!-- ── MOÑO (parte superior derecha, característica de Hello Kitty) -->
+            <path d="M128,54 Q143,39 156,51 Q143,65 128,54Z" fill="#ff4d79"/>
+            <path d="M184,54 Q169,39 156,51 Q169,65 184,54Z" fill="#ff4d79"/>
+            <circle cx="156" cy="51" r="9.5" fill="#ff80a0"/>
+            <circle cx="154" cy="48.5" r="3.8" fill="#ffb6c8" opacity="0.75"/>
+
+            <!-- ── BIGOTES izquierdos -->
+            <line x1="16" y1="108" x2="70" y2="115" stroke="#d4b0c0" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="16" y1="118" x2="70" y2="118" stroke="#d4b0c0" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="16" y1="128" x2="70" y2="121" stroke="#d4b0c0" stroke-width="1.6" stroke-linecap="round"/>
+            <!-- ── BIGOTES derechos -->
+            <line x1="184" y1="108" x2="130" y2="115" stroke="#d4b0c0" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="184" y1="118" x2="130" y2="118" stroke="#d4b0c0" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="184" y1="128" x2="130" y2="121" stroke="#d4b0c0" stroke-width="1.6" stroke-linecap="round"/>
+
+            <!-- ── NARIZ (amarilla dorada, estilo Hello Kitty) -->
+            <ellipse cx="100" cy="127" rx="5.5" ry="4" fill="#e8c000"/>
+
+            <!-- ════════════════════════════════════════════
+                 EXPRESIONES FACIALES
+                 JS las muestra/oculta según el estado de ánimo.
+                 Puedes editar los colores y formas aquí.
+            ════════════════════════════════════════════ -->
+
+            <!-- FELIZ (default) - ojos como arcos ^ ^ -->
+            <g id="face-happy" class="kitty-face">
+              <path d="M70,107 Q80,96 90,107" stroke="#222" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+              <path d="M110,107 Q120,96 130,107" stroke="#222" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+              <!-- Mejillas rosadas -->
+              <ellipse cx="68" cy="126" rx="13" ry="8" fill="#ffb6c1" opacity="0.5"/>
+              <ellipse cx="132" cy="126" rx="13" ry="8" fill="#ffb6c1" opacity="0.5"/>
+            </g>
+
+            <!-- NEUTRAL - ojos ovalados abiertos -->
+            <g id="face-neutral" class="kitty-face hidden">
+              <ellipse cx="79" cy="105" rx="9.5" ry="10.5" fill="#222"/>
+              <circle cx="82.5" cy="101.5" r="3.2" fill="white"/>
+              <ellipse cx="121" cy="105" rx="9.5" ry="10.5" fill="#222"/>
+              <circle cx="124.5" cy="101.5" r="3.2" fill="white"/>
+              <ellipse cx="68" cy="124" rx="10" ry="6" fill="#ffb6c1" opacity="0.3"/>
+              <ellipse cx="132" cy="124" rx="10" ry="6" fill="#ffb6c1" opacity="0.3"/>
+            </g>
+
+            <!-- TRISTE - ojos con lágrimas -->
+            <g id="face-sad" class="kitty-face hidden">
+              <ellipse cx="79" cy="107" rx="8.5" ry="9.5" fill="#222"/>
+              <circle cx="82" cy="103.5" r="2.8" fill="white"/>
+              <!-- Lágrima izquierda -->
+              <ellipse cx="75" cy="119" rx="4" ry="6" fill="#a8d4ff" opacity="0.8"/>
+              <ellipse cx="121" cy="107" rx="8.5" ry="9.5" fill="#222"/>
+              <circle cx="124" cy="103.5" r="2.8" fill="white"/>
+              <!-- Lágrima derecha -->
+              <ellipse cx="125" cy="119" rx="4" ry="6" fill="#a8d4ff" opacity="0.8"/>
+            </g>
+
+            <!-- COMIENDO - ojos muy felices, mejillas grandes -->
+            <g id="face-eat" class="kitty-face hidden">
+              <path d="M66,107 Q79,94 92,107" stroke="#222" stroke-width="4.2" fill="none" stroke-linecap="round"/>
+              <path d="M108,107 Q121,94 134,107" stroke="#222" stroke-width="4.2" fill="none" stroke-linecap="round"/>
+              <ellipse cx="66" cy="126" rx="15" ry="9" fill="#ff9eb5" opacity="0.65"/>
+              <ellipse cx="134" cy="126" rx="15" ry="9" fill="#ff9eb5" opacity="0.65"/>
+            </g>
+
+            <!-- DURMIENDO - ojos cerrados (curvas hacia abajo) -->
+            <g id="face-sleep" class="kitty-face hidden">
+              <path d="M66,105 Q80,116 94,105" stroke="#222" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+              <path d="M106,105 Q120,116 134,105" stroke="#222" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+              <!-- Zzz decorativos -->
+              <text x="145" y="75" font-size="14" fill="#a89bcc" font-weight="bold" font-family="Arial">z</text>
+              <text x="156" y="60" font-size="17" fill="#a89bcc" font-weight="bold" font-family="Arial">z</text>
+              <text x="168" y="43" font-size="21" fill="#a89bcc" font-weight="bold" font-family="Arial">Z</text>
+            </g>
+
+            <!-- ENAMORADA - ojos en forma de corazón -->
+            <g id="face-love" class="kitty-face hidden">
+              <!-- Corazón izquierdo (dos círculos + triángulo) -->
+              <circle cx="74" cy="103" r="7" fill="#ff4d79"/>
+              <circle cx="85" cy="103" r="7" fill="#ff4d79"/>
+              <polygon points="67,108 92,108 79.5,118" fill="#ff4d79"/>
+              <!-- Corazón derecho -->
+              <circle cx="115" cy="103" r="7" fill="#ff4d79"/>
+              <circle cx="126" cy="103" r="7" fill="#ff4d79"/>
+              <polygon points="108,108 133,108 120.5,118" fill="#ff4d79"/>
+              <!-- Mejillas intensas -->
+              <ellipse cx="66" cy="126" rx="15" ry="9" fill="#ff9eb5" opacity="0.7"/>
+              <ellipse cx="134" cy="126" rx="15" ry="9" fill="#ff9eb5" opacity="0.7"/>
+            </g>
+
+          </svg>
+          <!-- Fin del SVG. Para usar imagen real ver instrucciones arriba ↑ -->
+
+        </div><!-- /kitty-character -->
+      </div><!-- /pet-container -->
+
+
+      <!-- ══════════════════════════════════════════
+           HABITACIONES
+           Solo la habitación activa es visible.
+           JS las cambia al presionar la navegación.
+      ══════════════════════════════════════════ -->
+      <div id="rooms-wrapper">
+
+        <!-- 🍳 COCINA ─────────────────────────────── -->
+        <div class="room active" id="room-kitchen" role="region" aria-label="Cocina">
+          <h2 class="room-title">🍳 Cocina</h2>
+          <p class="room-desc">¡Dale algo rico de comer!</p>
+
+          <div class="food-grid">
+            <!-- Pastel: +20 de comida -->
+            <button class="food-item" data-food="cake" aria-label="Dar pastel (+20)">
+              <span class="food-emoji">🎂</span>
+              <span class="food-name">Pastel</span>
+              <span class="food-gain">+20</span>
+            </button>
+            <!-- Dulce: +15 de comida -->
+            <button class="food-item" data-food="candy" aria-label="Dar dulce (+15)">
+              <span class="food-emoji">🍬</span>
+              <span class="food-name">Dulce</span>
+              <span class="food-gain">+15</span>
+            </button>
+            <!-- Leche: +25 de comida -->
+            <button class="food-item" data-food="milk" aria-label="Dar leche (+25)">
+              <span class="food-emoji">🥛</span>
+              <span class="food-name">Leche</span>
+              <span class="food-gain">+25</span>
+            </button>
+          </div>
+        </div><!-- /room-kitchen -->
+
+        <!-- 🛏️ DORMITORIO ─────────────────────────── -->
+        <div class="room hidden" id="room-sleep" role="region" aria-label="Dormitorio">
+          <h2 class="room-title">🌙 Dormitorio</h2>
+          <p class="room-desc">¡Kitty necesita descansar!</p>
+
+          <div class="sleep-area">
+            <button id="sleep-bed" class="bed-btn" aria-label="Poner a dormir a Kitty (+30)">
+              <div class="bed-visual">
+                <!-- Cabecera de la cama -->
+                <div class="bed-headboard">
+                  <span class="headboard-stars">✨ ✨</span>
+                </div>
+                <!-- Base con almohada y cobija -->
+                <div class="bed-base">
+                  <div class="bed-pillow">🌸</div>
+                  <div class="bed-blanket">
+                    <div class="blanket-stripe"></div>
+                  </div>
+                </div>
+              </div>
+              <span class="bed-label">¡Toca para dormir! 😴</span>
+            </button>
+          </div>
+        </div><!-- /room-sleep -->
+
+        <!-- ❤️ SALA DEL AMOR ─────────────────────── -->
+        <div class="room hidden" id="room-love" role="region" aria-label="Sala del amor">
+          <h2 class="room-title">💕 Sala del Amor</h2>
+          <p class="room-desc">¡Dale mucho cariño!</p>
+
+          <div class="love-area">
+            <!-- Corazón principal grande -->
+            <button class="love-heart" id="main-heart" aria-label="Dar cariño (+20)">
+              <span class="heart-icon">💖</span>
+            </button>
+            <!-- Corazones pequeños decorativos (también dan amor) -->
+            <div class="small-hearts-row">
+              <button class="love-heart small-heart" aria-label="Dar cariño">💗</button>
+              <button class="love-heart small-heart" aria-label="Dar cariño">💓</button>
+              <button class="love-heart small-heart" aria-label="Dar cariño">💞</button>
+            </div>
+          </div>
+        </div><!-- /room-love -->
+
+      </div><!-- /rooms-wrapper -->
+
+    </main><!-- /game-area -->
+
+    <!-- ══════════════════════════════════════════
+         NAVEGACIÓN INFERIOR
+         Botones grandes, cómodos para el dedo
+    ══════════════════════════════════════════ -->
+    <nav id="room-nav" role="navigation" aria-label="Cambiar habitación">
+      <button class="nav-btn active" data-room="kitchen" aria-label="Ir a la cocina">
+        <span class="nav-icon">🍳</span>
+        <span class="nav-label">Cocina</span>
+      </button>
+      <button class="nav-btn" data-room="sleep" aria-label="Ir al dormitorio">
+        <span class="nav-icon">🛏️</span>
+        <span class="nav-label">Dormir</span>
+      </button>
+      <button class="nav-btn" data-room="love" aria-label="Ir a la sala del amor">
+        <span class="nav-icon">💕</span>
+        <span class="nav-label">Cariño</span>
+      </button>
+    </nav>
+
+  </div><!-- /game-container -->
+
+  <script src="script.js"></script>
+</body>
+</html>
